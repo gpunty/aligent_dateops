@@ -1,9 +1,9 @@
 <?php
 
 class DateOperator {
-	private static function convertDateToUnit($date) {
+	private static function convertDateToNumDays($date) {
 		//Calculate number of days up to but including the current year. The number of days
-		//elapsed in the current year will be calculated via the Z date format
+		//elapsed in the current year will be calculated via the 'z' date format
 		$yearVal = $date->format("Y") - 1;
 		$numDaysYear = $yearVal * 365;
 		
@@ -24,17 +24,40 @@ class DateOperator {
 		$numDaysThisYear = $date->format("z");
 		$numDaysYear += $numDaysThisYear;
 		
-		return $numDaysYear;
+		$numSecondsDays = self::convertToUnit($numDaysYear, "s");
+		
+		$hourComponent = $date->format("H");
+		$minuteComponent = $date->format("i");
+		$secondComponent = $date->format("s");
+		
+		$timeComponent = ($hourComponent * 60 * 60) + ($minuteComponent * 60) + $secondComponent;
+		
+		return $numDaysYear + ($timeComponent / 60 / 60 / 24);
 	}
 	
-	public static function calcNumDays($date1, $date2) {
-		$numDaysDate1 = self::convertDateToUnit($date1);
-		$numDaysDate2 = self::convertDateToUnit($date2);
+	private static function convertToUnit($numDaysValue, $unit) {
+		switch($unit) {
+			case "y":
+				return $numDaysValue / 365;
+			case "h":
+				return $numDaysValue * 24;
+			case "m":
+				return $numDaysValue * 24 * 60;
+			case "s":
+				return $numDaysValue * 24 * 60 * 60;
+			default:
+				return $numDaysValue;
+		}
+	}
+	
+	public static function calcNumDays($date1, $date2, $unit) {
+		$numDaysDate1 = self::convertDateToNumDays($date1);
+		$numDaysDate2 = self::convertDateToNumDays($date2);
 		
-		return abs($numDaysDate1 - $numDaysDate2);
+		return self::convertToUnit(abs($numDaysDate1 - $numDaysDate2), $unit);
 	} 
 	
-	public static function calcNumWeekdays($date1, $date2) {
+	public static function calcNumWeekdays($date1, $date2, $unit) {
 	    //Determine the larger of the date values to ensure correct processing
 		$minDate = $date1 >= $date2 ? clone $date2 : clone $date1;
 		$maxDate = $date1 >= $date2 ? clone $date1 : clone $date2;
@@ -62,7 +85,7 @@ class DateOperator {
 		
 		$numWeekdays = $remainingDaysFirstWeekDate1;
 		
-		$numCompleteWeeks = self::calcNumCompleteWeeks($tempDate, $maxDate);
+		$numCompleteWeeks = self::calcNumCompleteWeeks($tempDate, $maxDate, null);
 		$numWeekdays += ($numCompleteWeeks * 5);
 		
 		$elapsedDaysDate2 = $maxDate->format("w");
@@ -73,19 +96,22 @@ class DateOperator {
 		
 		$numWeekdays += $elapsedDaysDate2;
 		
-		return $numWeekdays;
+		return self::convertToUnit($numWeekdays, $unit);
 	}
 
-	public static function calcNumCompleteWeeks($date1, $date2) {
-		$numDays = self::calcNumDays($date1, $date2);
-		return floor($numDays / 7);
+	public static function calcNumCompleteWeeks($date1, $date2, $unit) {
+		$numDays = self::calcNumDays($date1, $date2, null);
+		
+		return self::convertToUnit(floor($numDays / 7), $unit);
+	}
+	
+	public static function setDateTimeZone(&$date, $timeZone) {
+		if(!is_null($timeZone)) {
+			if(in_array($timeZone, timezone_identifiers_list())) {
+				date_timezone_set($date, timezone_open($timeZone));
+			}
+		}
 	}
 }
-
-$dateVal1 = date_create("2022-03-19");
-$dateVal2 = date_create("2022-02-03");
-echo DateOperator::calcNumdays($dateVal1, $dateVal2), " days<br>";
-echo DateOperator::calcNumCompleteWeeks($dateVal1, $dateVal2), " complete weeks<br>";
-echo DateOperator::calcNumWeekdays($dateVal1, $dateVal2), " weekdays<br>";
 ?>
 
