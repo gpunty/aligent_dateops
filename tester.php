@@ -38,7 +38,7 @@
     echo "Number of weekdays between Date 1 and Date 2 (in seconds) is " . DateOperator::calcNumWeekdays($date1, $date2, "s") . "\n\n";
     
     echo "Number of complete weeks between Date 1 and Date 2 (in years) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, "y") . "\n";
-    echo "Number of complete weeks between Date 1 and Date 2 (in days) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, null) . "\n";
+    echo "Number of complete weeks between Date 1 and Date 2 (in weeks) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, null) . "\n";
     echo "Number of complete weeks between Date 1 and Date 2 (in hours) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, "h") . "\n";
     echo "Number of complete weeks between Date 1 and Date 2 (in minutes) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, "m") . "\n";
     echo "Number of complete weeks between Date 1 and Date 2 (in seconds) is " . DateOperator::calcNumCompleteWeeks($date1, $date2, "s") . "\n";

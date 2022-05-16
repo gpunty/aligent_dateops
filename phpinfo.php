@@ -39,6 +39,7 @@ class DateOperator {
       * Calculates the number of days that have elapsed for a given date.
       *
       * @param int $value Value to convert
+      * @param String $origUnit The time unit used for $value
       * @param String $unit Time unit to convert value to. Valid values for $unit are:
       *   - "y": years
       *   - "h": hours
@@ -50,18 +51,28 @@ class DateOperator {
       * date
       * @return int The amount of time elapsed relative to the given $unit, or $value
       */
-    private static function convertToUnit($value, $unit) {
+    private static function convertToUnit($value, $origUnit, $unit) {
+        $convertedValue = $value;
+        
+        //In the code, the original time unit will be one of 2 values: days (d) and weeks (w). To
+        //meet the requirements, I will only worry about these two time units as the core API functions
+        //will only produce a time value either in days or weeks. In the case of weeks, convert the value
+        //to days so that the conversion is consistent.
+        if($origUnit == "w" && $unit != null) {
+            $convertedValue *= 7;
+        }
+        
         switch($unit) {
             case "y": //years
-                return $value / 365;
+                return $convertedValue / 365;
             case "h": //hours
-                return $value * 24;
+                return $convertedValue * 24;
             case "m"://minutes
-                return $value * 24 * 60;
+                return $convertedValue * 24 * 60;
             case "s"://seconds
-                return $value * 24 * 60 * 60;
+                return $convertedValue * 24 * 60 * 60;
             default:
-                return $value;
+                return $convertedValue;
         }
     }
     
@@ -115,7 +126,7 @@ class DateOperator {
         
         $timestampComponentElapsed = ($timeComponentDate1 - $timeComponentDate2) / 60 / 60 / 24;
         
-        return self::convertToUnit(abs($numDaysDate1 - $numDaysDate2) + $timestampComponentElapsed, $unit);
+        return self::convertToUnit(abs($numDaysDate1 - $numDaysDate2) + $timestampComponentElapsed, "d", $unit);
     } 
     
     /**
@@ -205,7 +216,7 @@ class DateOperator {
             $numWeekdays += $timeComponent;
         }
         
-        return self::convertToUnit($numWeekdays, $unit);
+        return self::convertToUnit($numWeekdays, "d", $unit);
     }
 
     /**
@@ -229,7 +240,7 @@ class DateOperator {
         
         //As the exercise asks for the complete number of weeks ie. an integer value, 
         //consideration of the time component is irrelevant
-        return self::convertToUnit(floor($numDays / 7), $unit);
+        return self::convertToUnit(floor($numDays / 7), "w", $unit);
     }
     
     /**
