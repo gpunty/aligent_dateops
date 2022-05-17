@@ -124,7 +124,17 @@ class DateOperator {
         $timeComponentDate1 = self::calculateTimeComponent($date1);
         $timeComponentDate2 = self::calculateTimeComponent($date2);
         
-        $timestampComponentElapsed = ($timeComponentDate1 - $timeComponentDate2) / 60 / 60 / 24;
+        $timestampComponentElapsed = 0;
+        
+        if($numDaysDate1 > $numDaysDate2) {
+            $timestampComponentElapsed = $timeComponentDate1 - $timeComponentDate2;    
+        } else if($numDaysDate1 < $numDaysDate2) {
+            $timestampComponentElapsed = $timeComponentDate2 - $timeComponentDate1;    
+        } else {
+            $timestampComponentElapsed = max($timeComponentDate1, $timeComponentDate2) - min($timeComponentDate1, $timeComponentDate2);
+        }
+        
+        $timestampComponentElapsed = $timestampComponentElapsed / 60 / 60 / 24;
         
         return self::convertToUnit(abs($numDaysDate1 - $numDaysDate2) + $timestampComponentElapsed, "d", $unit);
     } 

@@ -73,6 +73,39 @@ final class DateOperatorTest extends TestCase {
         $this->assertEquals($numDaysDateDiffValue1, $numDaysDateDiff2);
     }
     
+    //Edge case to test minutes elapsed for a past midnight time
+    public function testCalcNumDaysEdgeCaseEqualToDateDiffWithTime() {
+        $date1 = date_create("2022-02-02 00:20:00");
+        $date2 = date_create("2022-01-01 23:45:00");
+        
+        $numDaysDateDiff1 = date_diff($date1, $date2);
+        $numDaysDateDiffValue1 = $numDaysDateDiff1->format("%a") + 
+                                 (($numDaysDateDiff1->format("%h") / 24) + 
+                                 ($numDaysDateDiff1->format("%i") / 60 / 24) +
+                                 ($numDaysDateDiff1->format("%s") / 60 / 60 / 24)) ;
+        
+        $numDaysDateDiff2 = DateOperator::calcNumDays($date1, $date2, null);
+        
+        $this->assertEquals($numDaysDateDiffValue1, $numDaysDateDiff2);
+    }
+    
+    //Edge case to test minutes elapsed for a past midnight time (inverted)
+    public function testCalcNumDaysEdgeCaseEqualToDateDiffWithTimeInverted() {
+        $date1 = date_create("2022-01-01 23:45:00");
+        $date2 = date_create("2022-02-02 00:20:00");
+        
+        
+        $numDaysDateDiff1 = date_diff($date1, $date2);
+        $numDaysDateDiffValue1 = $numDaysDateDiff1->format("%a") + 
+                                 (($numDaysDateDiff1->format("%h") / 24) + 
+                                 ($numDaysDateDiff1->format("%i") / 60 / 24) +
+                                 ($numDaysDateDiff1->format("%s") / 60 / 60 / 24)) ;
+        
+        $numDaysDateDiff2 = DateOperator::calcNumDays($date1, $date2, null);
+        
+        $this->assertEquals($numDaysDateDiffValue1, $numDaysDateDiff2);
+    }
+    
     //For the weekday-based tests, I figured it would be quicker to produce a hard-coded 
     //expected result for the purposes of this exercise
     public function testCalcNumWeekdaysStartDateWeekend() {
